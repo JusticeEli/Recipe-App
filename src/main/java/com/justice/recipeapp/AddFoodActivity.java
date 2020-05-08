@@ -1,0 +1,109 @@
+package com.justice.recipeapp;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
+
+import android.app.ProgressDialog;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class AddFoodActivity extends AppCompatActivity implements MethodsFragment.SubmitClicked {
+
+
+
+
+
+
+    ///////////////////////
+    private ProgressDialog progressDialog;
+    private CoordinatorLayout coordinatorLayout;
+    private ViewPagerAdapter viewPagerAdapter;
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
+    public static List<Fragment> fragmentList = new ArrayList<>();
+    public static List<String> fragmentNames = new ArrayList<>();
+
+    public static Food food=new Food();
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_food);
+        initWidgets();
+        setUpViewPager();
+        initFragmentViews();
+    }
+
+    private void initFragmentViews() {
+
+       }
+
+    private void setUpViewPager() {
+        fragmentNames.clear();
+        fragmentList.clear();
+
+        fragmentList.add(new IngredientsFragment(viewPager));
+        fragmentList.add(new MethodsFragment());
+
+        fragmentNames.add("Ingredients");
+        fragmentNames.add("Method");
+
+        tabLayout.setupWithViewPager(viewPager);
+        viewPager.setAdapter(viewPagerAdapter);
+
+
+    }
+
+    private void initWidgets() {
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPager = findViewById(R.id.viewPager);
+        tabLayout = findViewById(R.id.tabLayout);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+
+        progressDialog = new ProgressDialog(this);
+
+    }
+
+    @Override
+    public void submitBtnTapped() {
+
+
+////
+        progressDialog.show();
+        FirebaseFirestore.getInstance().collection("food").add(food).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                if (task.isSuccessful()) {
+                    Snackbar.make(coordinatorLayout, "Success", Snackbar.LENGTH_LONG).show();
+
+                    Toast.makeText(AddFoodActivity.this, "success", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    Snackbar.make(coordinatorLayout, "Error: " + task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
+                    Toast.makeText(AddFoodActivity.this, "Error :"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+
+
+                }
+                progressDialog.dismiss();
+            }
+        });
+
+
+    }
+}
