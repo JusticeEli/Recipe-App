@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,13 +23,14 @@ public class MethodsFragment extends Fragment {
 
     private Button submitBtn;
     private SubmitClicked submitClicked;
-    Food food = new Food();
 
     private TextInputLayout methods_1;
     private TextInputLayout methods_2;
     private TextInputLayout methods_3;
     private TextInputLayout methods_4;
     private TextInputLayout methods_5;
+
+
 
 
     @Override
@@ -59,21 +61,47 @@ public class MethodsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+          setOnClickListeners();
+        if (ApplicationClass.update) {
+            setDefaultValues();
+        }
 
+
+
+    }
+
+    private void setOnClickListeners() {
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-////////SETTING METHODS///////////////////
-                food.setMethod_1(methods_1.getEditText().getText().toString().trim());
-                food.setMethod_2(methods_2.getEditText().getText().toString().trim());
-                food.setMethod_3(methods_3.getEditText().getText().toString().trim());
-                food.setMethod_4(methods_4.getEditText().getText().toString().trim());
-                food.setMethod_5(methods_5.getEditText().getText().toString().trim());
+                if (ApplicationClass.update){
+                    ApplicationClass.originalFood.setMethod_1(methods_1.getEditText().getText().toString().trim());
+                    ApplicationClass.originalFood.setMethod_2(methods_2.getEditText().getText().toString().trim());
+                    ApplicationClass.originalFood.setMethod_3(methods_3.getEditText().getText().toString().trim());
+                    ApplicationClass.originalFood.setMethod_4(methods_4.getEditText().getText().toString().trim());
+                    ApplicationClass.originalFood.setMethod_5(methods_5.getEditText().getText().toString().trim());
+
+                }else {
+                    AddFoodActivity.food.setMethod_1(methods_1.getEditText().getText().toString().trim());
+                    AddFoodActivity.food.setMethod_2(methods_2.getEditText().getText().toString().trim());
+                    AddFoodActivity.food.setMethod_3(methods_3.getEditText().getText().toString().trim());
+                    AddFoodActivity.food.setMethod_4(methods_4.getEditText().getText().toString().trim());
+                    AddFoodActivity.food.setMethod_5(methods_5.getEditText().getText().toString().trim());
+
+                }
 
                 submitClicked.submitBtnTapped();
             }
         });
+    }
+
+    private void setDefaultValues() {
+        methods_1.getEditText().setText(ApplicationClass.originalFood.getMethod_1());
+        methods_2.getEditText().setText(ApplicationClass.originalFood.getMethod_2());
+        methods_3.getEditText().setText(ApplicationClass.originalFood.getMethod_3());
+        methods_4.getEditText().setText(ApplicationClass.originalFood.getMethod_4());
+        methods_5.getEditText().setText(ApplicationClass.originalFood.getMethod_5());
 
     }
 

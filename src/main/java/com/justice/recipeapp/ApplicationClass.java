@@ -10,9 +10,9 @@ public class ApplicationClass extends Application {
 
     public static Food originalFood;
 
-    public static List<Food> foodList=new ArrayList<>();
+    public static List<Food> foodList = new ArrayList<>();
 
-
+    public static boolean update = false;
 
 }
 

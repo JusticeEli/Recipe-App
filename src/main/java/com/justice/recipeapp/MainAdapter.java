@@ -33,6 +33,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> im
         return new ViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
 
@@ -40,11 +41,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> im
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ApplicationClass.update=true;
                 ApplicationClass.originalFood = list.get(position);
-
                 context.startActivity(new Intent(context, AddFoodActivity.class));
             }
         });
+
 
     }
 
@@ -71,8 +73,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> im
             }
 
             filteredList.clear();
-            for (Food food : list) {
-                if (food.getFoodName().contains(constraint.toString())) {
+            for (Food food : ApplicationClass.foodList) {
+                if (food.getFoodName().toLowerCase().contains(constraint.toString().toLowerCase())) {
                     filteredList.add(food);
 
                 }
@@ -104,4 +106,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> im
     public void setList(List<Food> foodList) {
         this.list = foodList;
     }
+
+    public List<Food> getList() {
+        return list;
+    }
+
 }

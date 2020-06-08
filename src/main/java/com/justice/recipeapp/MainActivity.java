@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -12,12 +13,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Filter;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -64,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Toast.makeText(MainActivity.this, "Success", Toast.LENGTH_SHORT).show();
                 if (queryDocumentSnapshots.isEmpty()) {
                     return;
                 }
@@ -75,14 +77,47 @@ public class MainActivity extends AppCompatActivity {
                         Food food = doc.getDocument().toObject(Food.class);
                         food.setId(doc.getDocument().getId());
                         foodList.add(food);
-                        adapter.notifyDataSetChanged();
 
                     }
 
 
                 }
+                adapter.notifyDataSetChanged();
+
             }
         });
+
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                final Food food = adapter.getList().get(viewHolder.getAdapterPosition());
+
+                FirebaseFirestore.getInstance().collection("food").document(food.getId()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                        if (task.isSuccessful()) {
+                            Snackbar.make(bottomAppBar, "deleted: " + food.getFoodName(), Snackbar.LENGTH_LONG).show();
+                            foodList.remove(food);
+                            adapter.getList().remove(food);
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            Snackbar.make(bottomAppBar, "Error: " + task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
+
+                        }
+
+
+                    }
+                });
+
+            }
+        }).attachToRecyclerView(recyclerView);
 
 
     }
@@ -115,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         fob.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ApplicationClass.update = false;
                 startActivity(new Intent(MainActivity.this, AddFoodActivity.class));
             }
         });

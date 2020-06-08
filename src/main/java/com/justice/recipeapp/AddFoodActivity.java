@@ -25,10 +25,6 @@ import java.util.List;
 public class AddFoodActivity extends AppCompatActivity implements MethodsFragment.SubmitClicked {
 
 
-
-
-
-
     ///////////////////////
     private ProgressDialog progressDialog;
     private CoordinatorLayout coordinatorLayout;
@@ -38,7 +34,7 @@ public class AddFoodActivity extends AppCompatActivity implements MethodsFragmen
     public static List<Fragment> fragmentList = new ArrayList<>();
     public static List<String> fragmentNames = new ArrayList<>();
 
-    public static Food food=new Food();
+    public static Food food = new Food();
 
 
     @Override
@@ -52,7 +48,7 @@ public class AddFoodActivity extends AppCompatActivity implements MethodsFragmen
 
     private void initFragmentViews() {
 
-       }
+    }
 
     private void setUpViewPager() {
         fragmentNames.clear();
@@ -83,27 +79,72 @@ public class AddFoodActivity extends AppCompatActivity implements MethodsFragmen
     @Override
     public void submitBtnTapped() {
 
+        if (ApplicationClass.update) {
+            updateFood();
+        } else {
+            addFood();
 
-////
+        }
+
+    }
+
+    private void addFood() {
+        progressDialog.setTitle("Add");
+        progressDialog.setMessage("adding food");
         progressDialog.show();
         FirebaseFirestore.getInstance().collection("food").add(food).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
             public void onComplete(@NonNull Task<DocumentReference> task) {
                 if (task.isSuccessful()) {
-                    Snackbar.make(coordinatorLayout, "Success", Snackbar.LENGTH_LONG).show();
-
-                    Toast.makeText(AddFoodActivity.this, "success", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(coordinatorLayout, "added", Snackbar.LENGTH_LONG).show();
+                    Toast.makeText(AddFoodActivity.this, "added", Toast.LENGTH_SHORT).show();
                 } else {
 
                     Snackbar.make(coordinatorLayout, "Error: " + task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
-                    Toast.makeText(AddFoodActivity.this, "Error :"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddFoodActivity.this, "Error :" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
 
 
                 }
                 progressDialog.dismiss();
+                onBackPressed();
             }
         });
 
 
+    }
+
+    private void updateFood() {
+        progressDialog.setTitle("Update");
+        progressDialog.setMessage("updating food");
+
+        progressDialog.show();
+        FirebaseFirestore.getInstance().collection("food").document(ApplicationClass.originalFood.getId()).set(ApplicationClass.originalFood).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Snackbar.make(coordinatorLayout, "updated", Snackbar.LENGTH_LONG).show();
+                    Toast.makeText(AddFoodActivity.this, "updated :", Toast.LENGTH_SHORT).show();
+
+
+                } else {
+
+                    Snackbar.make(coordinatorLayout, "Error: " + task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
+                    Toast.makeText(AddFoodActivity.this, "Error :" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+
+
+                }
+                progressDialog.dismiss();
+                onBackPressed();
+            }
+        });
+
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        ApplicationClass.update = false;
+        ApplicationClass.originalFood = null;
     }
 }
